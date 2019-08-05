@@ -1,0 +1,3 @@
+mmcroot=/dev/mmcblk0p1 rootwait rw
+mmcargs=setenv bootargs console=ttymxc0,115200n8 console=tty root=${mmcroot} quiet
+bootloader-knows-about-dtb-subfolder=yes

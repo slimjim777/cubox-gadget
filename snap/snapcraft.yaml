@@ -1,0 +1,53 @@
+name: cubox-i
+version: 18-0.1
+summary: i.Mx6 cubox-i gadget
+description: |
+ Bootloader files and partitoning data to create a
+ bootable Ubuntu Core 18 image for the cubox-i.
+type: gadget
+base: core18
+architectures:
+  - build-on: amd64
+    run-on: armhf
+confinement: strict
+grade: stable
+
+parts:
+  uboot:
+    plugin: nil
+    override-build: |
+      git clone --branch v2018.01-solidrun-imx6 https://github.com/SolidRun/u-boot.git u-boot-imx6
+      cd u-boot-imx6
+
+      # Apply our uboot patch
+      git apply -v ../../../../project/uboot.patch
+
+      export CROSS_COMPILE=arm-linux-gnueabi- make
+      # optionally add options to configs/mx6cuboxi_defconfig
+      make mx6cuboxi_defconfig
+      # optionally configure u-boot graphically
+      # make menuconfig
+      make
+      cp u-boot.img $SNAPCRAFT_PART_INSTALL/u-boot.img
+      cp SPL $SNAPCRAFT_PART_INSTALL/cubox-i-spl.bin
+
+      mkdir $SNAPCRAFT_PART_INSTALL/boot-assets
+      cp ../../../../project/assets/* $SNAPCRAFT_PART_INSTALL/boot-assets/
+
+      tools/mkenvimage -r -s 131072 -o $SNAPCRAFT_PART_INSTALL/uboot.env ../../../../project/uboot.env.in
+      cd $SNAPCRAFT_PART_INSTALL
+      ln -s uboot.env uboot.conf
+    build-packages:
+      - git
+      - libpython2.7-dev
+      - build-essential
+      - bc
+      - gcc-arm-linux-gnueabi
+
+slots:
+  i2c-1:
+    interface: i2c
+    path: /dev/i2c-1
+  i2c-2:
+    interface: i2c
+    path: /dev/i2c-2

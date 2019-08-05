@@ -1,0 +1,27 @@
+device-tree: imx6q-cubox-i-som-v15.dtb
+device-tree-origin: kernel
+volumes:
+  cubox:
+    bootloader: u-boot
+    schema: mbr
+    structure:
+      - name: spl
+        type: bare
+        size: 60000
+        offset: 1024
+        content:
+          - image: cubox-i-spl.bin
+      - name: u-boot
+        type: bare
+        size: 400000
+        offset: 70656
+        content:
+          - image: u-boot.img
+      - name: system-boot
+        type: 0C
+        filesystem: vfat
+        filesystem-label: system-boot
+        size: 128M
+        content:
+          - source: boot-assets/
+            target: /
