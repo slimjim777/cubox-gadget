@@ -14,35 +14,35 @@ grade: stable
 
 parts:
   uboot:
+    source: https://gitlab.denx.de/u-boot/u-boot.git
+    source-branch: v2019.04
+    source-depth: 1
     plugin: nil
     override-build: |
-      git clone --branch v2018.01-solidrun-imx6 https://github.com/SolidRun/u-boot.git u-boot-imx6
-      cd u-boot-imx6
-
       # Apply our uboot patch
-      git apply -v ../../../../project/uboot.patch
+      git apply -v ../../../uboot.patch
 
-      export CROSS_COMPILE=arm-linux-gnueabi- make
-      # optionally add options to configs/mx6cuboxi_defconfig
       make mx6cuboxi_defconfig
-      # optionally configure u-boot graphically
-      # make menuconfig
-      make
+      CROSS_COMPILE=arm-linux-gnueabihf- make
+
       cp u-boot.img $SNAPCRAFT_PART_INSTALL/u-boot.img
       cp SPL $SNAPCRAFT_PART_INSTALL/cubox-i-spl.bin
 
       mkdir $SNAPCRAFT_PART_INSTALL/boot-assets
-      cp ../../../../project/assets/* $SNAPCRAFT_PART_INSTALL/boot-assets/
 
-      tools/mkenvimage -r -s 131072 -o $SNAPCRAFT_PART_INSTALL/uboot.env ../../../../project/uboot.env.in
+      tools/mkenvimage -r -s 131072 -o $SNAPCRAFT_PART_INSTALL/uboot.env ../../../uboot.env.in
       cd $SNAPCRAFT_PART_INSTALL
       ln -s uboot.env uboot.conf
     build-packages:
-      - git
-      - libpython2.7-dev
-      - build-essential
       - bc
-      - gcc-arm-linux-gnueabi
+      - bison
+      - build-essential
+      - device-tree-compiler
+      - flex
+      - libpython2.7-dev
+      - python-minimal
+      - on amd64:
+        - gcc-arm-linux-gnueabihf
 
 slots:
   i2c-1:
